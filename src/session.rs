@@ -1,8 +1,10 @@
 use std::time::{Duration, Instant};
+
 use actix::prelude::*;
 use actix_web::web;
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
+
 use diesel::{
     prelude::*,
     r2d2::{self, ConnectionManager},
@@ -25,13 +27,16 @@ pub struct WsChatSession {
     pub addr: Addr<server::ChatServer>,
     pub db_pool: web::Data<DbPool>,
 }
+
 #[derive(PartialEq, Serialize, Deserialize)]
 pub enum ChatType {
+    STATUS,
     TYPING,
     TEXT,
     CONNECT,
     DISCONNECT,
 }
+
 #[derive(Serialize, Deserialize)]
 struct ChatMessage {
     pub chat_type: ChatType,
@@ -40,35 +45,43 @@ struct ChatMessage {
     pub user_id: String,
     pub id: usize,
 }
+
 impl Actor for WsChatSession {
     type Context = ws::WebsocketContext<Self>;
+
     fn started(&mut self, ctx: &mut Self::Context) {
         self.hb(ctx);
-        let addr =  ctx.address();
-        self.addr.send(server::Connect {
-            addr: addr.recipient(),
-        })
+
+        let addr = ctx.address();
+
+        self.addr
+            .send(server::Connect {
+                addr: addr.recipient(),
+            })
             .into_actor(self)
-            .then(|res, act,ctx| {
+            .then(|res, act, ctx| {
                 match res {
                     Ok(res) => act.id = res,
                     _ => ctx.stop(),
                 }
                 fut::ready(())
             })
-            .wait(ctx)
+            .wait(ctx);
     }
+
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
-        self.addr.do_send(server::Disconnect {id: self.id});
+        self.addr.do_send(server::Disconnect { id: self.id });
         Running::Stop
     }
 }
+
 impl Handler<server::Message> for WsChatSession {
     type Result = ();
     fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) -> Self::Result {
-        ctx.text(msg.0)
+        ctx.text(msg.0);
     }
 }
+
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
     fn handle(&mut self, item: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         let msg = match item {
@@ -78,10 +91,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
             }
             Ok(msg) => msg,
         };
+
         match msg {
             ws::Message::Ping(msg) => {
                 self.hb = Instant::now();
-                ctx.pong(&msg)
+                ctx.pong(&msg);
             }
             ws::Message::Pong(_) => {
                 self.hb = Instant::now();
@@ -93,6 +107,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                     println!("Failed to parse message: {text}");
                     return;
                 }
+
                 let input = data_json.as_ref().unwrap();
                 match &input.chat_type {
                     ChatType::TYPING => {
@@ -109,7 +124,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                             msg,
                             room: self.room.clone(),
                         })
-                    }ChatType::TEXT => {
+                    }
+                    ChatType::TEXT => {
                         let input = data_json.as_ref().unwrap();
                         let chat_msg = ChatMessage {
                             chat_type: ChatType::TEXT,
@@ -118,6 +134,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                             room_id: input.room_id.to_string(),
                             user_id: input.user_id.to_string(),
                         };
+
                         let mut conn = self.db_pool.get().unwrap();
                         let new_conversation = NewConversation {
                             user_id: input.user_id.to_string(),
@@ -147,6 +164,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
         }
     }
 }
+
 impl WsChatSession {
     fn hb(&self, ctx: &mut ws::WebsocketContext<Self>) {
         ctx.run_interval(HEARTBEAT, |act, ctx| {
