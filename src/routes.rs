@@ -1,15 +1,18 @@
 use std::time::Instant;
+
 use actix::*;
 use actix_files::NamedFile;
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse, Responder};
 use actix_web::web::Data;
 use actix_web_actors::ws;
+
 use diesel::{
     prelude::*,
     r2d2::{self, ConnectionManager},
 };
 use serde_json::json;
 use uuid::Uuid;
+
 use crate::db;
 use crate::models;
 use crate::server;
@@ -24,7 +27,7 @@ pub async fn chat_server(
     req: HttpRequest,
     stream: web::Payload,
     pool: web::Data<DbPool>,
-    srv: web:Data<Addr<server::ChatServer>>,
+    srv: web::Data<Addr<server::ChatServer>>,
 ) -> Result<HttpResponse, Error> {
     ws::start(
         session::WsChatSession {

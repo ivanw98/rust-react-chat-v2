@@ -13,3 +13,7 @@ actix-web-actors = "4.1.0"
 rand = "0.8.5"
 serde = "1.0.147"
 serde_json = "1.0.88"
+diesel = { version = "2", features = ["sqlite", "r2d2"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = "0.4.23"
+actix-cors = "0.6.4"
