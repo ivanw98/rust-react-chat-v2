@@ -9,11 +9,11 @@ use diesel::{ // Used to query the data from the SQLite Db
     r2d2::{self, ConnectionManager},
 };
 mod db;
-mod models;
 mod server;
 mod session;
 mod routes;
 mod schema;
+mod model;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
