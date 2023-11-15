@@ -1,18 +1,15 @@
-use std::ops::Add;
-use std::task::ready;
 use std::time::{Duration, Instant};
 use actix::prelude::*;
 use actix_web::web;
 use actix_web_actors::ws;
-use actix_web_actors::ws::ProtocolError;
 use serde::{Deserialize, Serialize};
 use diesel::{
     prelude::*,
     r2d2::{self, ConnectionManager},
 };
-use diesel::internal::derives::multiconnection::array_comparison::In;
+
 use crate::db;
-use crate::models::NewConversation;
+use crate::model::NewConversation;
 use crate::server;
 
 const HEARTBEAT: Duration = Duration::from_secs(5);
@@ -73,7 +70,7 @@ impl Handler<server::Message> for WsChatSession {
     }
 }
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
-    fn handle(&mut self, item: Result<ws::Message, ProtocolError>, ctx: &mut Self::Context) {
+    fn handle(&mut self, item: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         let msg = match item {
             Err(_) => {
                 ctx.stop();

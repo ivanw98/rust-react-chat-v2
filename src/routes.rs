@@ -14,7 +14,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 use crate::db;
-use crate::models;
+use crate::model;
 use crate::server;
 use crate::session;
 type DbPool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
@@ -36,7 +36,7 @@ pub async fn chat_server(
             room: "main".to_string(),
             name: None,
             addr: srv.get_ref().clone(),
-            db_ppol: pool,
+            db_pool: pool,
         },
         &req,
         stream
@@ -46,7 +46,7 @@ pub async fn chat_server(
 #[post("/users/create")]
 pub async fn create_user(
     pool: web::Data<DbPool>,
-    form: web::Json<models::NewUser>,
+    form: web::Json<model::NewUser>,
 ) -> Result<HttpResponse, Error> {
     let user = web::block(move || {
         let mut conn = pool.get()?;

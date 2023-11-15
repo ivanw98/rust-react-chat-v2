@@ -1,5 +1,4 @@
 use std::collections::{HashMap, HashSet};
-use std::ffi::CString;
 use serde_json::json;
 use actix::prelude::*;
 use rand::{self, rngs::ThreadRng, Rng};
