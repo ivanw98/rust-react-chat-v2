@@ -10,10 +10,10 @@ use diesel::{ // Used to query the data from the SQLite Db
 };
 mod db;
 mod models;
-mod schema;
 mod server;
 mod session;
 mod routes;
+mod schema;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
