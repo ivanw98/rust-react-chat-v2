@@ -1,5 +1,6 @@
 import { useState } from "react";
-async function createAccount({ username, phone }){
+
+async function createAccount({ username, phone }) {
     try {
         const url = "http://localhost:8080/users/create";
         let result = await fetch(url, {
@@ -15,9 +16,9 @@ async function createAccount({ username, phone }){
     }
 }
 
-async function signIn( { phone }) {
+async function signIn({ phone }) {
     try {
-        const url = `http://localhost:8080/users/phone/${phone}`
+        const url = `http://localhost:8080/users/phone/${phone}`;
         let result = await fetch(url);
         return result.json();
     } catch (err) {
@@ -25,11 +26,13 @@ async function signIn( { phone }) {
     }
 }
 
-export default function Login( {show, setAuth }) {
+export default function Login({ show, setAuth }) {
     const [isShowSignIn, setShowSignIn] = useState(false);
+
     const showSignIn = () => {
         setShowSignIn(prev => !prev)
     }
+
     const FormCreateUsername = ({ setAuth }) => {
         const onCreateUsername = async (e) => {
             e.preventDefault();
@@ -38,38 +41,42 @@ export default function Login( {show, setAuth }) {
             if (username === "" || phone === "") {
                 return;
             }
+
             let res = await createAccount({ username, phone });
             if (res === null) {
                 alert("Failed to create account");
                 return;
             }
+
             setAuth(res)
         }
+
         return (
             <form action="" className="mt-4 space-y-2" onSubmit={onCreateUsername}>
                 <div>
                     <label className="text-sm font-light">Username</label>
-                    <input required type="text" name="username" placeholder="John Doe"
-                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"/>
+                    <input required type="text" name="username" placeholder="Jhon Doe"
+                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
                 </div>
+
                 <div>
                     <label className="text-sm font-light">Phone</label>
                     <input required type="text" name="phone" placeholder="+1111..."
-                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"/>
+                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
                 </div>
+
                 <div className="flex items-baseline justify-between">
                     <button type="submit"
-                            className="px-6 py-2 mt-4 text-white bg-violet-600 rounded-lg hover:bg-violet-700 w-full">Submit
-                    </button>
+                            className="px-6 py-2 mt-4 text-white bg-violet-600 rounded-lg hover:bg-violet-700 w-full">Submit</button>
                 </div>
+
                 <div className="pt-2 space-y-2 text-center">
-                    <p className="text-base text-gray-700">Already have a username? <button onClick={showSignIn}
-                                                                                            className="text-violet-700 font-light">Sign
-                        In</button></p>
+                    <p className="text-base text-gray-700">Already have a username? <button onClick={showSignIn} className="text-violet-700 font-light">Sign In</button></p>
                 </div>
             </form>
         )
     }
+
     const FormSignIn = ({ setAuth }) => {
         const onSignIn = async (e) => {
             e.preventDefault();
@@ -77,37 +84,41 @@ export default function Login( {show, setAuth }) {
             if (phone === "") {
                 return;
             }
+
             let res = await signIn({ phone });
             if (res === null) {
                 alert("Failed to create account");
                 return;
             }
+
             if (!res.id) {
                 alert(`Phone number not found ${phone}`);
                 return;
             }
+
             setAuth(res)
         }
+
         return (
             <form action="" className="mt-4 space-y-2" onSubmit={onSignIn}>
                 <div>
                     <label className="text-sm font-light">Phone</label>
                     <input required type="text" name="phone" placeholder="+1111..."
-                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"/>
+                           className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
                 </div>
+
                 <div className="flex items-baseline justify-between">
                     <button type="submit"
-                            className="px-6 py-2 mt-4 text-white bg-violet-600 rounded-lg hover:bg-violet-700 w-full">Submit
-                    </button>
+                            className="px-6 py-2 mt-4 text-white bg-violet-600 rounded-lg hover:bg-violet-700 w-full">Submit</button>
                 </div>
+
                 <div className="pt-2 space-y-2 text-center">
-                    <p className="text-base text-gray-700">Don't have username? <button onClick={showSignIn}
-                                                                                        className="text-violet-700 font-light">Create</button>
-                    </p>
+                    <p className="text-base text-gray-700">Don't have username? <button onClick={showSignIn} className="text-violet-700 font-light">Create</button></p>
                 </div>
             </form>
         )
     }
+
     return (
         <div className={`${show ? '' : 'hidden'} bg-gradient-to-b from-orange-400 to-rose-400`}>
             <div className="flex items-center justify-center min-h-screen">
