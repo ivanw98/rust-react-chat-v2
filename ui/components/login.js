@@ -113,7 +113,7 @@ export default function Login({ show, setAuth }) {
                 </div>
 
                 <div className="pt-2 space-y-2 text-center">
-                    <p className="text-base text-gray-700">Don't have username? <button onClick={showSignIn} className="text-violet-700 font-light">Create</button></p>
+                    <p className="text-base text-gray-700">Dont have username? <button onClick={showSignIn} className="text-violet-700 font-light">Create</button></p>
                 </div>
             </form>
         )
